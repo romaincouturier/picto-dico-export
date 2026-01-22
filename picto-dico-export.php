@@ -102,9 +102,9 @@ class Picto_Dico_Export
         foreach ($attachment_ids as $id) {
             $exclude = false;
 
-            // 1. Check if the attachment itself has the excluded categories (if taxonomy is registered for media)
-            $terms = wp_get_post_categories($id);
-            if (!empty($terms) && !empty(array_intersect($terms, $excluded_cats))) {
+            // 1. Check if the attachment itself has the excluded categories
+            $terms = wp_get_post_terms($id, 'category', array('fields' => 'ids'));
+            if (!is_wp_error($terms) && !empty($terms) && !empty(array_intersect($terms, $excluded_cats))) {
                 $exclude = true;
             }
 
@@ -112,8 +112,8 @@ class Picto_Dico_Export
             if (!$exclude) {
                 $post = get_post($id);
                 if ($post->post_parent) {
-                    $parent_terms = wp_get_post_categories($post->post_parent);
-                    if (!empty($parent_terms) && !empty(array_intersect($parent_terms, $excluded_cats))) {
+                    $parent_terms = wp_get_post_terms($post->post_parent, 'category', array('fields' => 'ids'));
+                    if (!is_wp_error($parent_terms) && !empty($parent_terms) && !empty(array_intersect($parent_terms, $excluded_cats))) {
                         $exclude = true;
                     }
                 }
