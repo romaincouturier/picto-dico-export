@@ -88,6 +88,10 @@ class Picto_Dico_Export
 
         $excluded_cats = isset($_POST['exclude_cats']) ? array_map('intval', $_POST['exclude_cats']) : array();
 
+        // Get the uncategorized term ID
+        $uncategorized_term = get_term_by('slug', 'uncategorized', 'category');
+        $uncategorized_id = $uncategorized_term ? $uncategorized_term->term_id : 1;
+
         $args = array(
             'post_type' => 'attachment',
             'post_status' => 'inherit',
@@ -104,8 +108,30 @@ class Picto_Dico_Export
 
             // 1. Check if the attachment itself has the excluded categories
             $terms = wp_get_post_terms($id, 'category', array('fields' => 'ids'));
-            if (!is_wp_error($terms) && !empty($terms) && !empty(array_intersect($terms, $excluded_cats))) {
-                $exclude = true;
+            if (!is_wp_error($terms) && !empty($terms)) {
+                $term_count = count($terms);
+
+                // Special handling if uncategorized (Non classé) is in excluded list
+                if (in_array($uncategorized_id, $excluded_cats)) {
+                    // If attachment has ONLY uncategorized → include it (don't exclude)
+                    if ($term_count === 1 && in_array($uncategorized_id, $terms)) {
+                        // Keep exclude = false
+                    } elseif ($term_count > 1 && in_array($uncategorized_id, $terms)) {
+                        // Has uncategorized + other categories → exclude
+                        $exclude = true;
+                    } else {
+                        // Check other excluded categories (without uncategorized)
+                        $other_excluded = array_diff($excluded_cats, array($uncategorized_id));
+                        if (!empty($other_excluded) && !empty(array_intersect($terms, $other_excluded))) {
+                            $exclude = true;
+                        }
+                    }
+                } else {
+                    // Normal exclusion logic
+                    if (!empty(array_intersect($terms, $excluded_cats))) {
+                        $exclude = true;
+                    }
+                }
             }
 
             // 2. Check parent post categories if not already excluded
