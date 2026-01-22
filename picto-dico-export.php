@@ -4,8 +4,8 @@
  * Plugin URI:  https://github.com/romaincouturier/picto-dico-export
  * Description: Un outil professionnel pour exporter les titres de vos médias au format CSV. Comprend des options avancées pour exclure des catégories spécifiques de l'export.
  * Version:     1.0.1
- * Author:      Antigravity (Google DeepMind)
- * Author URI:  https://deepmind.google/
+ * Author:      Romain Couturier, Antigravity (Google DeepMind)
+ * Author URI:  https://www.supertilt.fr
  * License:     GPL2
  * Text Domain: picto-dico-export
  */
